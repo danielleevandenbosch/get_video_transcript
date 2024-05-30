@@ -1,3 +1,6 @@
+This application uses python and PHP allowing the end user to drag and drop a video and it will give the end user a download of the transcript of the said view. 
+Especially useful for teams meetings where you might want to search for words that were said in the meeting and find that part of the video. 
+
 In order to use the transcript maker you will need to make some apache configurations. 
 
 php.ini changes 
