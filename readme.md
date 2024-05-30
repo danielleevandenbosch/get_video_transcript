@@ -2,7 +2,7 @@ This application uses python and PHP allowing the end user to drag and drop a vi
 Especially useful for teams meetings where you might want to search for words that were said in the meeting and find that part of the video. 
 
 In order to use the transcript maker you will need to make some apache configurations. 
-##Python considerations: ##
+## Python considerations: ##
 
 You'll need these tools. 
 ```
@@ -16,7 +16,7 @@ pip3 install git+https://github.com/openai/whisper.git
 pip3 install ffmpeg-python tqdm
 ```
 
-##php##
+## php ##
 
 ### php.ini changes ###
 
