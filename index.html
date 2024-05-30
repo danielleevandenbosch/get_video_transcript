@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Transcription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .upload-container {
+            text-align: center;
+        }
+
+        .upload-area {
+            width: 300px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            text-align: center;
+            background-color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        .upload-area.dragover {
+            border-color: green;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #submitButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #submitButton:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <div class="upload-area" id="uploadfile">
+            Drag & Drop Video Here or Click to Upload
+        </div>
+        <input type="file" id="fileInput" class="hidden">
+        <button id="submitButton" class="hidden">Submit</button>
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <div id="statusMessage"></div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('uploadfile');
+        const fileInput = document.getElementById('fileInput');
+        const submitButton = document.getElementById('submitButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const statusMessage = document.getElementById('statusMessage');
+        let selectedFile;
+
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            dropArea.classList.remove('dragover');
+
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                selectedFile = files[0];
+                stageFile(selectedFile);
+            }
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            selectedFile = event.target.files[0];
+            stageFile(selectedFile);
+        });
+
+        submitButton.addEventListener('click', () => {
+            if (selectedFile) {
+                uploadFile(selectedFile);
+            }
+        });
+
+        function stageFile(file) {
+            statusMessage.innerHTML = `File selected: ${file.name}`;
+            submitButton.classList.remove('hidden');
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loadingSpinner.style.display = 'block';
+            submitButton.classList.add('hidden');
+            statusMessage.innerHTML = 'Uploading file...';
+
+            const startTime = Date.now();
+            fetch('upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                const endTime = Date.now();
+                const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+                const estimatedTime = Math.round((file.size / 8) / 1024 / 1024 / 2); // Rough estimate: file size / average internet speed
+                statusMessage.innerHTML = `File uploaded successfully. Processing time estimate: ${estimatedTime} seconds.`;
+                return response.blob();
+            })
+            .then(blob => {
+                loadingSpinner.style.display = 'none';
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'transcript.txt';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                loadingSpinner.style.display = 'none';
+                console.error('Error:', error);
+                statusMessage.innerHTML = 'Error uploading or processing file. Please try again.';
+            });
+        }
+    </script>
+</body>
+</html>
