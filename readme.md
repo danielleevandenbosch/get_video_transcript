@@ -2,8 +2,23 @@ This application uses python and PHP allowing the end user to drag and drop a vi
 Especially useful for teams meetings where you might want to search for words that were said in the meeting and find that part of the video. 
 
 In order to use the transcript maker you will need to make some apache configurations. 
+##Python considerations: ##
 
-php.ini changes 
+You'll need these tools. 
+```
+python3 --version
+pip3 --version
+sudo apt update
+sudo apt install python3
+sudo apt install python3-pip
+sudo apt install ffmpeg
+pip3 install git+https://github.com/openai/whisper.git
+pip3 install ffmpeg-python tqdm
+```
+
+##php##
+
+### php.ini changes ###
 
 ```
 file_uploads = On
@@ -16,10 +31,7 @@ memory_limit = 4G
 
 ```
 
-Private tmp removal
-
-
-
+###Private tmp removal###
 
 ```
 sudo cp /lib/systemd/system/apache2.service /etc/systemd/system/
